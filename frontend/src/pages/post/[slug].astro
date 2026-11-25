@@ -84,7 +84,13 @@ const ogImage = ogImageSource
               code: CodeBlock,
               image: ({ value }: any) => {
                 if (!value?.asset?.url) return null;
-                return <img src={value.asset.url} alt={value.alt || ""} class="my-5 w-full h-auto rounded-lg" />;
+                return (
+                  <img 
+                    src={value.asset.url} 
+                    alt={value.alt || ""} 
+                    class="my-5 w-full h-auto rounded-lg" 
+                  />
+                );
               }
             } 
           }} 
