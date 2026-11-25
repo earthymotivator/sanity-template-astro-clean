@@ -1,61 +1,35 @@
 ---
-import { createDataAttribute } from "@sanity/visual-editing-csm";
 import { formatDate } from "../utils";
-import { isImageWithAsset, SanityImage } from "@sanity/astro/image";
-import type { Post } from "../utils/sanity";
 
 interface Props {
-  post: Post;
+  post: any;
 }
 
 const { post } = Astro.props;
 
-const visualEditingEnabled =
-  import.meta.env.PUBLIC_SANITY_VISUAL_EDITING_ENABLED === "true";
+const getImageUrl = (image: any) => {
+  if (!image?.asset?._ref) return null;
+  const ref = image.asset._ref;
+  const [_type, hash, dimensions, format] = ref.split('-');
+  return `https://cdn.sanity.io/images/${import.meta.env.PUBLIC_SANITY_STUDIO_PROJECT_ID}/${import.meta.env.PUBLIC_SANITY_STUDIO_DATASET}/${hash}-${dimensions}.${format}`;
+};
 
-const dataAttr = visualEditingEnabled
-  ? createDataAttribute({
-      projectId: import.meta.env.PUBLIC_SANITY_STUDIO_PROJECT_ID,
-      dataset: import.meta.env.PUBLIC_SANITY_STUDIO_DATASET,
-      baseUrl:
-        import.meta.env.PUBLIC_SANITY_STUDIO_URL || "http://localhost:3333",
-      id: post._id,
-      type: post._type,
-    })
-  : null;
+const imgUrl = getImageUrl(post.metadata?.image);
 ---
 
-<div class="relative flex flex-col border-b border-gray-200 p-2 first:rounded-t last:rounded-b sm:border sm:border-b-0 sm:last:border-b md:flex-row">
-  {
-    isImageWithAsset(post.mainImage) ? (
-      <SanityImage
-        class="h-57.75 w-full object-cover md:min-w-[366.5px] md:max-w-[366.5px] md:max-h-57.75"
-        src={post.mainImage}
-        width={500}
-        height={300}
-        widths={[366, 500, 732]}
-        sizes="(max-width: 800px) 100vw, 366px"
-        quality={80}
-        placeholder="blur"
-        alt={post.mainImage.alt || ""}
-        data-sanity={dataAttr?.scope("mainImage").toString()}
-      />
-    ) : (
-      <div class="h-57.75 w-full bg-black md:min-w-[366.5px] md:max-w-[366.5px] md:max-h-57.75" />
-    )
-  }
-  <div class="mx-1 md:mx-5">
-    <h3 class="font-sans font-extrabold text-4xl leading-9 -tracking-[0.025em] my-3 sm:mt-5">
-      <a
-        class="text-black no-underline hover:opacity-80 transition-opacity duration-200 before:content-[''] before:absolute before:inset-0"
-        href={`/post/${post.slug.current}`}
-      >
-        {post.title}
-      </a>
-    </h3>
-    <p class="font-serif font-normal text-xl leading-7 mt-0">{post.excerpt}</p>
-    <p class="font-sans font-semibold text-sm mt-7">
-      {formatDate(post._createdAt)}
+<a href={`/post/${post.slug}`} class="block group border rounded-lg overflow-hidden hover:shadow-lg transition bg-white">
+  {imgUrl ? (
+    <img src={imgUrl} alt={post.title || ""} class="w-full h-56 object-cover" />
+  ) : (
+    <div class="w-full h-56 bg-gray-200" />
+  )}
+  <div class="p-6">
+    <h2 class="text-2xl font-bold group-hover:text-blue-600 transition">{post.title}</h2>
+    <p class="text-sm text-gray-500 mt-2">
+      {formatDate(post.publishDate || post._createdAt)}
     </p>
+    {post.metadata?.description && (
+      <p class="mt-3 text-gray-700 line-clamp-3">{post.metadata.description}</p>
+    )}
   </div>
-</div>
+</a>
