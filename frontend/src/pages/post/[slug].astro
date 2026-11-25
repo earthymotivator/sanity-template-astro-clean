@@ -1,15 +1,12 @@
 ---
 import { PortableText } from "astro-portabletext";
-import { createDataAttribute } from "@sanity/visual-editing-csm";
-import CodeBlock from "../../components/CodeBlock.astro";
 import Layout from "../../layouts/Layout.astro";
 import { formatDate } from "../../utils";
-import { getSanityImageProps, isImageWithAsset, SanityImage } from "@sanity/astro/image";
 import { getPost } from "../../utils/sanity";
 import { sanityClient } from "sanity:client";
 
 export async function getStaticPaths() {
-  const posts = await sanityClient.fetch(`*[_type == "post"]{ "slug": slug.current }`);
+  const posts = await sanityClient.fetch(`*[_type == "blog.post" && defined(slug.current)]{ "slug": slug.current }`);
   return posts.map((post: { slug: string }) => ({
     params: { slug: post.slug },
   }));
@@ -22,80 +19,45 @@ if (!post) {
   return Astro.rewrite('/404');
 }
 
-const visualEditingEnabled =
-  import.meta.env.PUBLIC_SANITY_VISUAL_EDITING_ENABLED === "true";
-
-const dataAttr = visualEditingEnabled
-  ? createDataAttribute({
-      projectId: import.meta.env.PUBLIC_SANITY_STUDIO_PROJECT_ID,
-      dataset: import.meta.env.PUBLIC_SANITY_STUDIO_DATASET,
-      baseUrl:
-        import.meta.env.PUBLIC_SANITY_STUDIO_URL || "http://localhost:3333",
-      id: post._id,
-      type: post._type,
-    })
-  : null;
-
-const seoTitle = post.seo?.metaTitle || post.title;
-const seoDescription = post.seo?.metaDescription || post.excerpt;
-const ogImageSource = [post.seo?.ogImage, post.mainImage].find(isImageWithAsset);
-const ogImage = ogImageSource
-  ? getSanityImageProps(ogImageSource, { width: 1200, height: 630 }).src
+const seoTitle = post.metadata?.title || post.title;
+const seoDescription = post.metadata?.description || "";
+const ogImageRef = post.metadata?.image?.asset?._ref;
+const ogImage = ogImageRef
+  ? `https://cdn.sanity.io/images/${import.meta.env.PUBLIC_SANITY_STUDIO_PROJECT_ID}/${import.meta.env.PUBLIC_SANITY_STUDIO_DATASET}/${ogImageRef.split('-').slice(1).join('-')}`
   : undefined;
 ---
 
-<Layout
-  title={seoTitle ?? "Post"}
-  description={seoDescription}
-  image={ogImage}
->
+<Layout title={seoTitle ?? "Post"} description={seoDescription} image={ogImage}>
   <section class="w-full my-1 mb-5">
-    {
-      isImageWithAsset(post.mainImage) ? (
-        <SanityImage
-          class="w-full h-50 object-cover md:w-187.5 md:h-95"
-          src={post.mainImage}
-          width={750}
-          widths={[375, 750, 1200]}
-          sizes="(max-width: 800px) 100vw, 750px"
-          quality={85}
-          placeholder="blur"
-          loading="eager"
-          decoding="sync"
-          alt={post.mainImage.alt || ""}
-          data-sanity={dataAttr?.scope("mainImage").toString()}
-        />
-      ) : (
-        <div class="w-full h-50 bg-black md:w-187.5 md:h-95" />
-      )
-    }
-    <div class="px-3">
+    <div class="px-3 max-w-4xl mx-auto mt-10">
       <h1 class="font-sans font-extrabold text-4xl leading-9 my-5 md:text-6xl md:leading-tight md:mt-13 md:mb-0 md:-tracking-[0.025em] break-words">{post.title}</h1>
-      <p class="font-serif font-normal text-2xl leading-7 mt-0 md:leading-8 md:mt-3 md:mb-3 break-words" data-sanity={dataAttr?.scope("excerpt").toString()}>{post.excerpt}</p>
-      <p class="font-sans font-semibold text-sm leading-5 mt-5 md:text-lg md:leading-6 md:mt-0">
-        {formatDate(post._createdAt)}
+      
+      <p class="font-sans font-semibold text-sm leading-5 mt-5 md:text-lg md:leading-6 md:mt-2 mb-10 text-gray-500">
+        {formatDate(post.publishDate || post._createdAt)}
       </p>
-      <div class="prose prose-lg prose-serif mt-13 md:mt-21 max-w-none prose-blockquote:border-l-[5px] prose-blockquote:border-black prose-blockquote:pl-3 prose-blockquote:ml-5 prose-a:text-blue-600 prose-a:no-underline break-words" data-sanity={dataAttr?.scope("content").toString()}>
-        
+      
+      <div class="prose prose-lg prose-serif max-w-none prose-blockquote:border-l-[5px] prose-blockquote:border-black prose-blockquote:pl-3 prose-blockquote:ml-5 prose-a:text-blue-600 prose-a:no-underline break-words">
         <PortableText 
           value={post.content} 
           components={{ 
             type: { 
-              code: CodeBlock,
               image: ({ value }: any) => {
-                if (!value?.asset?.url) return null;
+                if (!value?.asset?._ref) return null;
+                const imgRef = value.asset._ref.split('-').slice(1).join('-');
+                const imgUrl = `https://cdn.sanity.io/images/${import.meta.env.PUBLIC_SANITY_STUDIO_PROJECT_ID}/${import.meta.env.PUBLIC_SANITY_STUDIO_DATASET}/${imgRef}`;
+                
                 return (
-                  <img 
-                    src={value.asset.url} 
-                    alt={value.alt || ""} 
-                    class="my-5 w-full h-auto rounded-lg" 
-                  />
+                  <div class="my-8">
+                    <img src={imgUrl} alt={value.alt || ""} class="w-full h-auto rounded-lg shadow-sm" />
+                    {value.figcaption && (
+                      <p class="text-center text-sm text-gray-500 mt-2">Image</p>
+                    )}
+                  </div>
                 );
               }
             } 
           }} 
         />
-        
       </div>
     </div>
   </section>
