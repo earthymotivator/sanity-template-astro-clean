@@ -1,5 +1,4 @@
 import { sanityClient } from "sanity:client";
-import type { Slug } from "@sanity/types";
 import groq from "groq";
 
 const visualEditingEnabled = import.meta.env.PUBLIC_SANITY_VISUAL_EDITING_ENABLED === "true";
