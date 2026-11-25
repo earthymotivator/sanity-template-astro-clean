@@ -6,8 +6,6 @@ import groq from "groq";
 const visualEditingEnabled = import.meta.env.PUBLIC_SANITY_VISUAL_EDITING_ENABLED === "true";
 const token = import.meta.env.SANITY_API_READ_TOKEN;
 
-// visualEditingEnabled=true: fetch draft content with stega encoding (local/staging with Presentation tool)
-// visualEditingEnabled=false: fetch published content from CDN (production)
 async function loadQuery<T>(query: string, params: Record<string, any> = {}): Promise<T> {
   return sanityClient.fetch<T>(
     query,
@@ -20,7 +18,6 @@ async function loadQuery<T>(query: string, params: Record<string, any> = {}): Pr
   );
 }
 
-// Image fields with the crop, hotspot and asset data <SanityImage> needs for cropping and blur placeholders
 const imageFunctions = groq`
   fn image::asset($asset) = $asset->{url, metadata{lqip}};
   fn image::field($image) = $image{crop, hotspot, alt, "asset": image::asset(asset)};
@@ -72,6 +69,6 @@ export interface Post {
   slug: Slug;
   excerpt?: string;
   mainImage?: ImageField | null;
-  body: PortableTextBlock[];
+  content: PortableTextBlock[];
   seo?: Seo;
 }
