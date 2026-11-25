@@ -1,5 +1,4 @@
 import { sanityClient } from "sanity:client";
-import type { PortableTextBlock } from "@portabletext/types";
 import type { Slug } from "@sanity/types";
 import groq from "groq";
 
@@ -18,57 +17,36 @@ async function loadQuery<T>(query: string, params: Record<string, any> = {}): Pr
   );
 }
 
-const imageFunctions = groq`
-  fn image::asset($asset) = $asset->{url, metadata{lqip}};
-  fn image::field($image) = $image{crop, hotspot, alt, "asset": image::asset(asset)};
-`;
-
 export async function getPosts(): Promise<Post[]> {
   return loadQuery<Post[]>(
-    groq`${imageFunctions}
-    *[_type == "post" && defined(slug.current)] | order(_createdAt desc) {
+    groq`*[_type == "blog.post" && defined(slug.current)] | order(publishDate desc) {
       ...,
-      "mainImage": image::field(mainImage)
+      "slug": slug.current
     }`,
   );
 }
 
 export async function getPost(slug: string): Promise<Post> {
   return loadQuery<Post>(
-    groq`${imageFunctions}
-    *[_type == "post" && slug.current == $slug][0] {
+    groq`*[_type == "blog.post" && slug.current == $slug][0] {
       ...,
-      "mainImage": image::field(mainImage),
-      seo {
-        ...,
-        "ogImage": image::field(ogImage)
-      }
+      "slug": slug.current
     }`,
     { slug },
   );
 }
 
-export interface ImageField {
-  asset: { url: string; metadata?: { lqip?: string } } | null;
-  hotspot?: { x: number; y: number; height: number; width: number };
-  crop?: { top: number; bottom: number; left: number; right: number };
-  alt?: string;
-}
-
-export interface Seo {
-  metaTitle?: string;
-  metaDescription?: string;
-  ogImage?: ImageField | null;
-}
-
 export interface Post {
   _id: string;
-  _type: "post";
+  _type: "blog.post";
   _createdAt: string;
   title?: string;
-  slug: Slug;
-  excerpt?: string;
-  mainImage?: ImageField | null;
-  content: PortableTextBlock[];
-  seo?: Seo;
+  slug: string;
+  content: any[];
+  publishDate?: string;
+  metadata?: {
+    title?: string;
+    description?: string;
+    image?: any;
+  };
 }
