@@ -34,8 +34,8 @@ const components = {
       const imgUrl = `https://cdn.sanity.io/images/${import.meta.env.PUBLIC_SANITY_STUDIO_PROJECT_ID}/${import.meta.env.PUBLIC_SANITY_STUDIO_DATASET}/${imgRef}`;
       
       return (
-        <div class="my-8">
-          <img src={imgUrl} alt={value.alt || ""} class="w-full h-auto rounded-lg shadow-sm" />
+        <div className="my-8">
+          <img src={imgUrl} alt={value.alt || ""} className="w-full h-auto rounded-lg shadow-sm" />
         </div>
       );
     }
