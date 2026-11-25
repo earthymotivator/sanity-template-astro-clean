@@ -2,6 +2,7 @@
 import { PortableText } from "astro-portabletext";
 import { createDataAttribute } from "@sanity/visual-editing-csm";
 import CodeBlock from "../../components/CodeBlock.astro";
+import PortableImage from "../../components/PortableImage.astro";
 import Layout from "../../layouts/Layout.astro";
 import { formatDate } from "../../utils";
 import { getSanityImageProps, isImageWithAsset, SanityImage } from "@sanity/astro/image";
@@ -76,30 +77,10 @@ const ogImage = ogImageSource
         {formatDate(post._createdAt)}
       </p>
       <div class="prose prose-lg prose-serif mt-13 md:mt-21 max-w-none prose-blockquote:border-l-[5px] prose-blockquote:border-black prose-blockquote:pl-3 prose-blockquote:ml-5 prose-a:text-blue-600 prose-a:no-underline" data-sanity={dataAttr?.scope("content").toString()}>
-        
-        <PortableText 
-          value={post.content} 
-          components={{ 
-            type: { 
-              code: CodeBlock,
-              image: ({ value }: any) => {
-                return isImageWithAsset(value) ? (
-                  <SanityImage
-                    class="my-5 w-full h-auto rounded-lg"
-                    src={value}
-                    width={750}
-                    widths={[375, 750, 1200]}
-                    sizes="(max-width: 800px) 100vw, 750px"
-                    quality={85}
-                    alt={value.alt || ""}
-                  />
-                ) : null;
-              },
-              unknown: () => null
-            } 
-          }} 
+        <PortableText
+          value={post.content}
+          components={{ type: { code: CodeBlock, image: PortableImage } }}
         />
-        
       </div>
     </div>
   </section>
