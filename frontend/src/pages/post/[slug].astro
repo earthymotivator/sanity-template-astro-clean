@@ -25,6 +25,22 @@ const ogImageRef = post.metadata?.image?.asset?._ref;
 const ogImage = ogImageRef
   ? `https://cdn.sanity.io/images/${import.meta.env.PUBLIC_SANITY_STUDIO_PROJECT_ID}/${import.meta.env.PUBLIC_SANITY_STUDIO_DATASET}/${ogImageRef.split('-').slice(1).join('-')}`
   : undefined;
+
+const components = {
+  type: {
+    image: ({ value }: any) => {
+      if (!value?.asset?._ref) return null;
+      const imgRef = value.asset._ref.split('-').slice(1).join('-');
+      const imgUrl = `https://cdn.sanity.io/images/${import.meta.env.PUBLIC_SANITY_STUDIO_PROJECT_ID}/${import.meta.env.PUBLIC_SANITY_STUDIO_DATASET}/${imgRef}`;
+      
+      return (
+        <div class="my-8">
+          <img src={imgUrl} alt={value.alt || ""} class="w-full h-auto rounded-lg shadow-sm" />
+        </div>
+      );
+    }
+  }
+};
 ---
 
 <Layout title={seoTitle ?? "Post"} description={seoDescription} image={ogImage}>
@@ -37,27 +53,7 @@ const ogImage = ogImageRef
       </p>
       
       <div class="prose prose-lg prose-serif max-w-none prose-blockquote:border-l-[5px] prose-blockquote:border-black prose-blockquote:pl-3 prose-blockquote:ml-5 prose-a:text-blue-600 prose-a:no-underline break-words">
-        <PortableText 
-          value={post.content} 
-          components={{ 
-            type: { 
-              image: ({ value }: any) => {
-                if (!value?.asset?._ref) return null;
-                const imgRef = value.asset._ref.split('-').slice(1).join('-');
-                const imgUrl = `https://cdn.sanity.io/images/${import.meta.env.PUBLIC_SANITY_STUDIO_PROJECT_ID}/${import.meta.env.PUBLIC_SANITY_STUDIO_DATASET}/${imgRef}`;
-                
-                return (
-                  <div class="my-8">
-                    <img src={imgUrl} alt={value.alt || ""} class="w-full h-auto rounded-lg shadow-sm" />
-                    {value.figcaption && (
-                      <p class="text-center text-sm text-gray-500 mt-2">Image</p>
-                    )}
-                  </div>
-                );
-              }
-            } 
-          }} 
-        />
+        <PortableText value={post.content} components={components} />
       </div>
     </div>
   </section>
