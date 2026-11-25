@@ -6,6 +6,14 @@ import Layout from "../../layouts/Layout.astro";
 import { formatDate } from "../../utils";
 import { getSanityImageProps, isImageWithAsset, SanityImage } from "@sanity/astro/image";
 import { getPost } from "../../utils/sanity";
+import { sanityClient } from "sanity:client";
+
+export async function getStaticPaths() {
+  const posts = await sanityClient.fetch(`*[_type == "post"]{ "slug": slug.current }`);
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+  }));
+}
 
 const { slug } = Astro.params;
 const post = await getPost(slug!);
