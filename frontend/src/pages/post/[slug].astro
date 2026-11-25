@@ -36,7 +36,6 @@ const dataAttr = visualEditingEnabled
     })
   : null;
 
-// SEO values: use editor-provided overrides, fall back to post fields
 const seoTitle = post.seo?.metaTitle || post.title;
 const seoDescription = post.seo?.metaDescription || post.excerpt;
 const ogImageSource = [post.seo?.ogImage, post.mainImage].find(isImageWithAsset);
@@ -76,8 +75,8 @@ const ogImage = ogImageSource
       <p class="font-sans font-semibold text-sm leading-5 mt-5 md:text-lg md:leading-6 md:mt-0">
         {formatDate(post._createdAt)}
       </p>
-      <div class="prose prose-lg prose-serif mt-13 md:mt-21 max-w-none prose-blockquote:border-l-[5px] prose-blockquote:border-black prose-blockquote:pl-3 prose-blockquote:ml-5 prose-a:text-blue-600 prose-a:no-underline" data-sanity={dataAttr?.scope("body").toString()}>
-        <PortableText value={post.body} components={{ type: { code: CodeBlock } }} />
+      <div class="prose prose-lg prose-serif mt-13 md:mt-21 max-w-none prose-blockquote:border-l-[5px] prose-blockquote:border-black prose-blockquote:pl-3 prose-blockquote:ml-5 prose-a:text-blue-600 prose-a:no-underline" data-sanity={dataAttr?.scope("content").toString()}>
+        <PortableText value={post.content} components={{ type: { code: CodeBlock } }} />
       </div>
     </div>
   </section>
