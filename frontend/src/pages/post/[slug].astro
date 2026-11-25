@@ -82,7 +82,7 @@ const ogImage = ogImageSource
           components={{ 
             type: { 
               code: CodeBlock,
-              image: ({ value }) => {
+              image: ({ value }: any) => {
                 return isImageWithAsset(value) ? (
                   <SanityImage
                     class="my-5 w-full h-auto rounded-lg"
@@ -95,9 +95,7 @@ const ogImage = ogImageSource
                   />
                 ) : null;
               },
-              unknown: ({ node }) => {
-                return null;
-              }
+              unknown: () => null
             } 
           }} 
         />
