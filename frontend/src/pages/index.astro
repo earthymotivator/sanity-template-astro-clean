@@ -1,15 +1,22 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { getPosts } from "../utils/sanity";
-import { formatDate } from "../utils";
 
 const posts = await getPosts();
 
+// Nest jaisa short date: "Sep 16, 2026"
+// Shared formatDate utils nahi chhedha, taki dusre pages na toot jayein
+const formatShortDate = (value: string) =>
+  new Date(value).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+
 const getImageUrl = (post: any) => {
-  // 1. Pehle metadata image check karo
   let imageRef = post.metadata?.image?.asset?._ref;
   
-  // 2. Agar wahan nahi hai, toh content ke andar pehli image dhoondo
   if (!imageRef && post.content) {
     const imageBlock = post.content.find((block: any) => block._type === 'image');
     imageRef = imageBlock?.asset?._ref;
@@ -23,47 +30,55 @@ const getImageUrl = (post: any) => {
 ---
 
 <Layout title="Home">
-  <section class="max-w-4xl mx-auto px-4 py-12">
-    <h1 class="text-4xl font-extrabold mb-8">Latest Posts</h1>
+  <!-- Mobile par px-2 (Nest jaisa inset), desktop par px-6 -->
+  <div class="w-full max-w-3xl mx-auto px-2 md:px-6 pt-24 pb-16">
     
-    <div class="grid gap-10">
+    <div class="flex flex-col gap-14">
       {posts.map((post) => {
         const imgUrl = getImageUrl(post);
-        // Sanity se category aa rahi hai, nahi toh 'Post' dikhega
         const categoryName = post.categories && post.categories.length > 0 ? post.categories[0] : "Post";
+        const dateText = formatShortDate(post.publishDate || post._createdAt);
         
         return (
           <a href={`/post/${post.slug}`} class="block group">
+            
             {imgUrl ? (
-              <div class="w-full h-64 md:h-80 rounded-2xl overflow-hidden mb-6">
+              <!-- Image ko full width kar diya mobile me -->
+              <div class="w-full aspect-[16/10] md:aspect-[1.8/1] rounded-2xl overflow-hidden mb-5 bg-gray-100">
                 <img 
                   src={imgUrl} 
                   alt={post.title} 
-                  class="w-full h-full object-cover group-hover:scale-105 transition duration-500" 
+                  class="w-full h-full object-cover" 
                 />
               </div>
             ) : (
-              <div class="w-full h-64 md:h-80 bg-gray-100 rounded-2xl mb-6 flex items-center justify-center text-gray-400">
+              <div class="w-full aspect-[16/10] md:aspect-[1.8/1] bg-gray-100 rounded-2xl mb-5 flex items-center justify-center text-gray-400 font-medium">
                 No Image
               </div>
             )}
 
-            <div class="flex items-center gap-3 text-sm text-teal-700 font-medium mb-2">
-              <span>{categoryName}</span>
+            <div class="flex items-center gap-2.5 text-[15px] font-medium mb-2">
+              <span class="text-[#0e7490]">{categoryName}</span>
               <span class="text-gray-400">·</span>
-              <span class="text-gray-500 font-normal">
-                {formatDate(post.publishDate || post._createdAt)}
+              <span class="text-[#5f6368] font-normal">
+                {dateText}
               </span>
             </div>
             
-            <h2 class="text-3xl font-bold mb-3 group-hover:text-teal-700 transition">{post.title}</h2>
+            <!-- Mobile par text-2xl (Nest jaisa), desktop par text-4xl -->
+            <h2 class="text-2xl md:text-4xl font-semibold mb-3 text-[#1a1a1a] leading-tight tracking-tight">
+              {post.title}
+            </h2>
             
             {post.metadata?.description && (
-              <p class="text-lg text-gray-600 line-clamp-2">{post.metadata.description}</p>
+              <p class="text-[17px] text-[#5f6368] leading-[1.6] line-clamp-2">
+                {post.metadata.description}
+              </p>
             )}
           </a>
         );
       })}
     </div>
-  </section>
+
+  </div>
 </Layout>
