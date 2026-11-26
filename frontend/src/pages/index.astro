@@ -4,26 +4,66 @@ import { getPosts } from "../utils/sanity";
 import { formatDate } from "../utils";
 
 const posts = await getPosts();
+
+const getImageUrl = (post: any) => {
+  // 1. Pehle metadata image check karo
+  let imageRef = post.metadata?.image?.asset?._ref;
+  
+  // 2. Agar wahan nahi hai, toh content ke andar pehli image dhoondo
+  if (!imageRef && post.content) {
+    const imageBlock = post.content.find((block: any) => block._type === 'image');
+    imageRef = imageBlock?.asset?._ref;
+  }
+
+  if (!imageRef) return null;
+  
+  const [_type, hash, dimensions, format] = imageRef.split('-');
+  return `https://cdn.sanity.io/images/${import.meta.env.PUBLIC_SANITY_STUDIO_PROJECT_ID}/${import.meta.env.PUBLIC_SANITY_STUDIO_DATASET}/${hash}-${dimensions}.${format}`;
+};
 ---
 
 <Layout title="Home">
   <section class="max-w-4xl mx-auto px-4 py-12">
     <h1 class="text-4xl font-extrabold mb-8">Latest Posts</h1>
     
-    <div class="grid gap-8 md:grid-cols-2">
-      {posts.map((post) => (
-        <a href={`/post/${post.slug}`} class="block group border rounded-lg overflow-hidden hover:shadow-lg transition bg-white">
-          <div class="p-6">
-            <h2 class="text-2xl font-bold group-hover:text-blue-600 transition">{post.title}</h2>
-            <p class="text-sm text-gray-500 mt-2">
-              {formatDate(post.publishDate || post._createdAt)}
-            </p>
-            {post.metadata?.description && (
-              <p class="mt-3 text-gray-700 line-clamp-3">{post.metadata.description}</p>
+    <div class="grid gap-10">
+      {posts.map((post) => {
+        const imgUrl = getImageUrl(post);
+        // Sanity se category aa rahi hai, nahi toh 'Post' dikhega
+        const categoryName = post.categories && post.categories.length > 0 ? post.categories[0] : "Post";
+        
+        return (
+          <a href={`/post/${post.slug}`} class="block group">
+            {imgUrl ? (
+              <div class="w-full h-64 md:h-80 rounded-2xl overflow-hidden mb-6">
+                <img 
+                  src={imgUrl} 
+                  alt={post.title} 
+                  class="w-full h-full object-cover group-hover:scale-105 transition duration-500" 
+                />
+              </div>
+            ) : (
+              <div class="w-full h-64 md:h-80 bg-gray-100 rounded-2xl mb-6 flex items-center justify-center text-gray-400">
+                No Image
+              </div>
             )}
-          </div>
-        </a>
-      ))}
+
+            <div class="flex items-center gap-3 text-sm text-teal-700 font-medium mb-2">
+              <span>{categoryName}</span>
+              <span class="text-gray-400">·</span>
+              <span class="text-gray-500 font-normal">
+                {formatDate(post.publishDate || post._createdAt)}
+              </span>
+            </div>
+            
+            <h2 class="text-3xl font-bold mb-3 group-hover:text-teal-700 transition">{post.title}</h2>
+            
+            {post.metadata?.description && (
+              <p class="text-lg text-gray-600 line-clamp-2">{post.metadata.description}</p>
+            )}
+          </a>
+        );
+      })}
     </div>
   </section>
 </Layout>
