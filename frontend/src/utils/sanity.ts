@@ -18,18 +18,18 @@ async function loadQuery<T>(query: string, params: Record<string, any> = {}): Pr
 
 export async function getPosts(): Promise<Post[]> {
   return loadQuery<Post[]>(
-    groq`*[_type == "blog.post" && defined(slug.current)] | order(publishDate desc) {
+    groq`*[_type == "blog.post"] | order(publishDate desc) {
       ...,
-      "slug": slug.current
+      "slug": _id
     }`,
   );
 }
 
 export async function getPost(slug: string): Promise<Post> {
   return loadQuery<Post>(
-    groq`*[_type == "blog.post" && slug.current == $slug][0] {
+    groq`*[_type == "blog.post" && _id == $slug][0] {
       ...,
-      "slug": slug.current
+      "slug": _id
     }`,
     { slug },
   );
