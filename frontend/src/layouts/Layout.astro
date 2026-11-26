@@ -11,7 +11,6 @@ interface Props {
 const { title, description, image } = Astro.props;
 const canonicalURL = Astro.url;
 
-// Enable visual editing overlays when the env variable is set to "true"
 const visualEditingEnabled =
   import.meta.env.PUBLIC_SANITY_VISUAL_EDITING_ENABLED === "true";
 ---
@@ -61,15 +60,12 @@ const visualEditingEnabled =
 
     <!-- HEADER (Dark Gradient Pill) -->
     <header class="sticky top-4 z-50 w-full px-4">
-      <!-- Yahan bg-gradient-to-r class use kiya hai footer wale colors ke liye -->
       <div class="max-w-3xl mx-auto bg-gradient-to-r from-[#0f172a] to-[#115e59] shadow-md rounded-full px-6 py-3 flex items-center justify-between border border-white/10">
         
-        <!-- Logo (Text white kar diya) -->
         <a href="/" class="text-2xl font-extrabold tracking-tighter text-white lowercase no-underline">
           top10analysis
         </a>
 
-        <!-- Hamburger Menu (Icon white kar diya) -->
         <button type="button" class="text-white hover:opacity-70 transition-opacity p-1" aria-label="Menu">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
             <path d="M4 7h16M4 12h16M4 17h16"/>
@@ -80,27 +76,28 @@ const visualEditingEnabled =
     </header>
 
     <!-- Main Content Area -->
-    <main class="flex-grow w-full max-w-3xl mx-auto px-4 pt-10 pb-24 sm:px-5">
+    <main class="flex-grow w-full max-w-3xl mx-auto px-4 pt-10 pb-16 sm:px-5">
       <slot />
     </main>
 
-    <!-- FOOTER (Social Links Removed) -->
-    <footer class="bg-gradient-to-b from-[#0f172a] to-[#115e59] text-white pt-16 pb-8 px-6 mt-12 rounded-t-[2.5rem]">
+    <!-- COMPRESSED FOOTER -->
+    <!-- pt-16 (top padding) ko kam karke pt-8 kiya, pb-8 ko pb-6 kiya, mt-12 ko mt-8 kiya -->
+    <footer class="bg-gradient-to-b from-[#0f172a] to-[#115e59] text-white pt-8 pb-6 px-6 mt-8 rounded-t-[2rem]">
       <div class="max-w-3xl mx-auto">
         
-        <!-- Links Grid (Ab 3 columns hain: Brand, Company, Legal) -->
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-8 mb-12">
+        <!-- Links Grid (Gap kam kiya: gap-8 se gap-6, mb-12 se mb-8) -->
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-6 mb-8">
           
           <!-- Brand/Company Column -->
           <div class="col-span-2 md:col-span-1">
-            <h4 class="text-white font-extrabold text-2xl tracking-tighter mb-4 lowercase">top10analysis</h4>
-            <p class="text-white/60 text-sm leading-relaxed">Product news, engineering notes and building guides.</p>
+            <h4 class="text-white font-extrabold text-xl tracking-tighter mb-2 lowercase">top10analysis</h4>
+            <p class="text-white/60 text-xs leading-relaxed max-w-[250px]">Product news, engineering notes and building guides.</p>
           </div>
 
           <!-- Pages Links -->
           <div>
-            <h4 class="text-white/50 font-semibold mb-4 text-sm uppercase tracking-wider">Company</h4>
-            <ul class="space-y-3 text-white/90 text-sm font-medium">
+            <h4 class="text-white/50 font-semibold mb-3 text-xs uppercase tracking-wider">Company</h4>
+            <ul class="space-y-2 text-white/90 text-sm font-medium">
               <li><a href="/about" class="hover:text-white transition-colors">About Us</a></li>
               <li><a href="/contact" class="hover:text-white transition-colors">Contact</a></li>
             </ul>
@@ -108,8 +105,8 @@ const visualEditingEnabled =
 
           <!-- Legal Links -->
           <div>
-            <h4 class="text-white/50 font-semibold mb-4 text-sm uppercase tracking-wider">Legal</h4>
-            <ul class="space-y-3 text-white/90 text-sm font-medium">
+            <h4 class="text-white/50 font-semibold mb-3 text-xs uppercase tracking-wider">Legal</h4>
+            <ul class="space-y-2 text-white/90 text-sm font-medium">
               <li><a href="/privacy" class="hover:text-white transition-colors">Privacy Policy</a></li>
               <li><a href="/disclaimer" class="hover:text-white transition-colors">Disclaimer</a></li>
               <li><a href="/terms" class="hover:text-white transition-colors">Terms & Conditions</a></li>
@@ -118,12 +115,12 @@ const visualEditingEnabled =
 
         </div>
 
-        <!-- Bottom Bar -->
-        <div class="border-t border-white/10 pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-white/60">
+        <!-- Bottom Bar (Padding top kam kiya: pt-6 se pt-4) -->
+        <div class="border-t border-white/10 pt-4 flex flex-col md:flex-row justify-between items-center gap-2 text-[11px] text-white/60">
           <p>&copy; 2026 top10analysis. All rights reserved.</p>
           
           <div class="flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]"></span> 
+            <span class="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_6px_rgba(34,197,94,0.6)]"></span> 
             All systems normal
           </div>
         </div>
