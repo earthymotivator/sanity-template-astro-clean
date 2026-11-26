@@ -53,12 +53,9 @@ const components = {
       const [_type, hash, dimensions, format] = ref.split('-');
       const imgUrl = `https://cdn.sanity.io/images/${import.meta.env.PUBLIC_SANITY_STUDIO_PROJECT_ID}/${import.meta.env.PUBLIC_SANITY_STUDIO_DATASET}/${hash}-${dimensions}.${format}`;
       
-      return (
-        <div class="my-8">
-          <img src={imgUrl} alt={value.alt || ""} class="w-full h-auto rounded-lg shadow-sm" />
-          {value.figcaption && <p class="text-center text-sm text-gray-500 mt-2">Image</p>}
-        </div>
-      );
+      return {
+        html: `<div class="my-8"><img src="${imgUrl}" alt="${value.alt || ''}" class="w-full h-auto rounded-lg shadow-sm" /></div>`
+      };
     },
     code: () => null,
     'accordion-list': () => null,
