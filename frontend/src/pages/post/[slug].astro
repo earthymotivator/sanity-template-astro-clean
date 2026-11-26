@@ -4,6 +4,8 @@ import Layout from "../../layouts/Layout.astro";
 import { formatDate } from "../../utils";
 import { getPost } from "../../utils/sanity";
 import { sanityClient } from "sanity:client";
+import PortableImage from "../../components/PortableImage.astro";
+import PortableTable from "../../components/PortableTable.astro";
 
 export async function getStaticPaths() {
   const posts = await sanityClient.fetch(`*[_type == "blog.post" && defined(slug.current)]{ "slug": slug.current }`);
@@ -28,39 +30,9 @@ const ogImage = ogImageRef
 
 const components = {
   type: {
-    image: ({ value }: any) => {
-      if (!value?.asset?._ref) return null;
-      const imgRef = value.asset._ref.split('-').slice(1).join('-');
-      const imgUrl = `https://cdn.sanity.io/images/${import.meta.env.PUBLIC_SANITY_STUDIO_PROJECT_ID}/${import.meta.env.PUBLIC_SANITY_STUDIO_DATASET}/${imgRef}`;
-      
-      return (
-        <div class="my-8">
-          <img src={imgUrl} alt={value.alt || ""} class="w-full h-auto rounded-lg shadow-sm" />
-        </div>
-      );
-    },
-    table: ({ value }: any) => {
-      const rows = value?.rows ?? [];
-      const headerRows = value?.headerRows ?? 1;
-      return (
-        <div class="my-8 overflow-x-auto">
-          <table class="w-full border-collapse text-sm">
-            <tbody>
-              {rows.map((row: any, rowIndex: number) => (
-                <tr class={rowIndex < headerRows ? "bg-slate-100 font-semibold" : ""}>
-                  {row?.cells?.map((cell: any) => (
-                    <td class="border border-slate-300 px-3 py-2 align-top">
-                      <PortableText value={cell?.value ?? []} />
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      );
-    }
-  }
+    image: PortableImage,
+    table: PortableTable,
+  },
 };
 ---
 
