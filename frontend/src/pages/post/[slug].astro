@@ -4,7 +4,6 @@ import Layout from "../../layouts/Layout.astro";
 import { formatDate } from "../../utils";
 import { getPost } from "../../utils/sanity";
 import { sanityClient } from "sanity:client";
-import TableBlock from "../../components/TableBlock.astro";
 
 export async function getStaticPaths() {
   const posts = await sanityClient.fetch(`*[_type == "blog.post"]{ "slug": _id }`);
@@ -26,6 +25,7 @@ const ogImageRef = post.metadata?.image?.asset?._ref;
 const ogImage = ogImageRef
   ? `https://cdn.sanity.io/images/${import.meta.env.PUBLIC_SANITY_STUDIO_PROJECT_ID}/${import.meta.env.PUBLIC_SANITY_STUDIO_DATASET}/${ogImageRef.split('-').slice(1).join('-')}`
   : undefined;
+
 const components = {
   type: {
     image: () => null,
@@ -34,7 +34,36 @@ const components = {
     ctas: () => null,
     'custom-html': () => null,
     'schema-markup': () => null,
-    table: TableBlock,
+    table: ({ value }: any) => {
+      const rows = value?.rows || [];
+      let htmlString = '<div class="my-6 overflow-x-auto"><table class="min-w-full border-collapse border border-gray-300 text-left"><tbody>';
+      
+      rows.forEach((row: any, rowIndex: number) => {
+        htmlString += `<tr class="${rowIndex === 0 ? 'bg-gray-50' : ''}">`;
+        
+        if (row.cells) {
+          row.cells.forEach((cell: any) => {
+            const tag = rowIndex === 0 ? 'th' : 'td';
+            const cellClass = rowIndex === 0 ? 'border border-gray-300 p-3 font-semibold' : 'border border-gray-300 p-3';
+            
+            // Extract text from Sanity cell value array
+            let text = '';
+            if (cell.value && Array.isArray(cell.value)) {
+              text = cell.value.map((block: any) => 
+                block.children?.map((child: any) => child.text).join('') || ''
+              ).join('');
+            }
+            htmlString += `<${tag} class="${cellClass}">${text}</${tag}>`;
+          });
+        }
+        htmlString += '</tr>';
+      });
+      
+      htmlString += '</tbody></table></div>';
+      
+      // Return raw HTML string for Astro to render
+      return { html: htmlString };
+    },
     unknown: () => null
   }
 };
@@ -50,7 +79,7 @@ const components = {
       </p>
       
       <div class="prose prose-lg prose-serif max-w-none prose-blockquote:border-l-[5px] prose-blockquote:border-black prose-blockquote:pl-3 prose-blockquote:ml-5 prose-a:text-blue-600 prose-a:no-underline break-words">
-        <pre class="bg-black text-green-400 p-4 overflow-auto text-xs">{JSON.stringify(post.content, null, 2)}</pre>
+        <PortableText value={post.content} components={components} />
       </div>
     </div>
   </section>
