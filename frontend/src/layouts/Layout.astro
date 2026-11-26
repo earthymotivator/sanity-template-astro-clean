@@ -58,20 +58,35 @@ const visualEditingEnabled =
     <!-- Top Gradient Background -->
     <div class="absolute top-0 left-0 right-0 h-[400px] bg-gradient-to-b from-[#e0f2f1] to-transparent -z-10 pointer-events-none"></div>
 
-    <!-- HEADER (Dark Gradient Pill) -->
+    <!-- HEADER (Dark Gradient Pill + Dropdown Menu) -->
     <header class="sticky top-4 z-50 w-full px-4">
-      <div class="max-w-3xl mx-auto bg-gradient-to-r from-[#0f172a] to-[#115e59] shadow-md rounded-full px-6 py-3 flex items-center justify-between border border-white/10">
+      <div class="relative max-w-3xl mx-auto">
         
-        <a href="/" class="text-2xl font-extrabold tracking-tighter text-white lowercase no-underline">
-          top10analysis
-        </a>
+        <!-- Pill Container -->
+        <div class="bg-gradient-to-r from-[#0f172a] to-[#115e59] shadow-md rounded-full px-6 py-3 flex items-center justify-between border border-white/10">
+          
+          <a href="/" class="text-2xl font-extrabold tracking-tighter text-white lowercase no-underline">
+            top10analysis
+          </a>
 
-        <button type="button" class="text-white hover:opacity-70 transition-opacity p-1" aria-label="Menu">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-            <path d="M4 7h16M4 12h16M4 17h16"/>
-          </svg>
-        </button>
-        
+          <!-- Menu Button -->
+          <button id="menu-btn" type="button" class="text-white hover:opacity-70 transition-opacity p-1" aria-label="Toggle Menu">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M4 7h16M4 12h16M4 17h16"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Dropdown Menu (Initially Hidden) -->
+        <div id="dropdown-menu" class="hidden absolute top-full left-0 right-0 mt-2 bg-[#0f172a] border border-white/10 rounded-3xl shadow-xl overflow-hidden">
+          <nav class="flex flex-col p-4 space-y-2">
+            <a href="/" class="text-white/80 hover:text-white hover:bg-white/10 px-4 py-2 rounded-xl transition-colors font-medium">Home</a>
+            <a href="/blog" class="text-white/80 hover:text-white hover:bg-white/10 px-4 py-2 rounded-xl transition-colors font-medium">Blog</a>
+            <a href="/about" class="text-white/80 hover:text-white hover:bg-white/10 px-4 py-2 rounded-xl transition-colors font-medium">About</a>
+            <a href="/contact" class="text-white/80 hover:text-white hover:bg-white/10 px-4 py-2 rounded-xl transition-colors font-medium">Contact</a>
+          </nav>
+        </div>
+
       </div>
     </header>
 
@@ -81,20 +96,15 @@ const visualEditingEnabled =
     </main>
 
     <!-- COMPRESSED FOOTER -->
-    <!-- pt-16 (top padding) ko kam karke pt-8 kiya, pb-8 ko pb-6 kiya, mt-12 ko mt-8 kiya -->
     <footer class="bg-gradient-to-b from-[#0f172a] to-[#115e59] text-white pt-8 pb-6 px-6 mt-8 rounded-t-[2rem]">
       <div class="max-w-3xl mx-auto">
         
-        <!-- Links Grid (Gap kam kiya: gap-8 se gap-6, mb-12 se mb-8) -->
         <div class="grid grid-cols-2 md:grid-cols-3 gap-6 mb-8">
-          
-          <!-- Brand/Company Column -->
           <div class="col-span-2 md:col-span-1">
             <h4 class="text-white font-extrabold text-xl tracking-tighter mb-2 lowercase">top10analysis</h4>
             <p class="text-white/60 text-xs leading-relaxed max-w-[250px]">Product news, engineering notes and building guides.</p>
           </div>
 
-          <!-- Pages Links -->
           <div>
             <h4 class="text-white/50 font-semibold mb-3 text-xs uppercase tracking-wider">Company</h4>
             <ul class="space-y-2 text-white/90 text-sm font-medium">
@@ -103,7 +113,6 @@ const visualEditingEnabled =
             </ul>
           </div>
 
-          <!-- Legal Links -->
           <div>
             <h4 class="text-white/50 font-semibold mb-3 text-xs uppercase tracking-wider">Legal</h4>
             <ul class="space-y-2 text-white/90 text-sm font-medium">
@@ -112,13 +121,10 @@ const visualEditingEnabled =
               <li><a href="/terms" class="hover:text-white transition-colors">Terms & Conditions</a></li>
             </ul>
           </div>
-
         </div>
 
-        <!-- Bottom Bar (Padding top kam kiya: pt-6 se pt-4) -->
         <div class="border-t border-white/10 pt-4 flex flex-col md:flex-row justify-between items-center gap-2 text-[11px] text-white/60">
           <p>&copy; 2026 top10analysis. All rights reserved.</p>
-          
           <div class="flex items-center gap-2">
             <span class="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_6px_rgba(34,197,94,0.6)]"></span> 
             All systems normal
@@ -127,6 +133,25 @@ const visualEditingEnabled =
 
       </div>
     </footer>
+
+    <!-- VANILLA JS FOR MENU TOGGLE (Sirf browser me chalega, 0ms CPU on server) -->
+    <script>
+      const menuBtn = document.getElementById('menu-btn');
+      const dropdownMenu = document.getElementById('dropdown-menu');
+
+      if (menuBtn && dropdownMenu) {
+        menuBtn.addEventListener('click', () => {
+          dropdownMenu.classList.toggle('hidden');
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (event) => {
+          if (!menuBtn.contains(event.target) && !dropdownMenu.contains(event.target)) {
+            dropdownMenu.classList.add('hidden');
+          }
+        });
+      }
+    </script>
 
   </body>
 </html>
