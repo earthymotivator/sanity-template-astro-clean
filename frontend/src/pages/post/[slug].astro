@@ -26,40 +26,15 @@ const ogImage = ogImageRef
   ? `https://cdn.sanity.io/images/${import.meta.env.PUBLIC_SANITY_STUDIO_PROJECT_ID}/${import.meta.env.PUBLIC_SANITY_STUDIO_DATASET}/${ogImageRef.split('-').slice(1).join('-')}`
   : undefined;
 
-// JSX ke bajaye HTML strings use kiye hain taaki koi error na aaye
-const components: any = {
+const components = {
   type: {
-    image: ({ value }: any) => {
-      if (!value?.asset?._ref) return null;
-      const imgRef = value.asset._ref.split('-').slice(1).join('-');
-      const imgUrl = `https://cdn.sanity.io/images/${import.meta.env.PUBLIC_SANITY_STUDIO_PROJECT_ID}/${import.meta.env.PUBLIC_SANITY_STUDIO_DATASET}/${imgRef}`;
-      return `<div class="my-8"><img src="${imgUrl}" alt="${value.alt || ''}" class="w-full h-auto rounded-lg shadow-sm" /></div>`;
-    },
-    code: ({ value }: any) => {
-      return `<pre class="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto my-6"><code>${value.code}</code></pre>`;
-    },
-    table: ({ value }: any) => {
-      return `<div class="my-6 overflow-x-auto"><table class="min-w-full border-collapse border border-gray-300"><tbody><tr><td class="border p-2">Table data</td></tr></tbody></table></div>`;
-    },
-    'accordion-list': ({ value }: any) => {
-      if (!value?.items) return null;
-      const items = value.items.map((item: any) => `
-        <details class="bg-gray-50 p-4 rounded-lg border cursor-pointer my-2">
-          <summary class="font-bold">${item.title || 'Accordion'}</summary>
-          <div class="mt-2 text-gray-700">Content</div>
-        </details>
-      `).join('');
-      return `<div class="my-6 space-y-2">${items}</div>`;
-    },
-    ctas: ({ value }: any) => {
-      if (!value?.ctas) return null;
-      const ctas = value.ctas.map((cta: any) => `
-        <a href="${cta.link || '#'}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 mr-2">
-          ${cta.text || 'Click Here'}
-        </a>
-      `).join('');
-      return `<div class="my-6 flex gap-4">${ctas}</div>`;
-    },
+    image: () => null,
+    code: () => null,
+    'accordion-list': () => null,
+    ctas: () => null,
+    table: () => null,
+    'custom-html': () => null,
+    'schema-markup': () => null,
     unknown: () => null
   }
 };
@@ -75,10 +50,7 @@ const components: any = {
       </p>
       
       <div class="prose prose-lg prose-serif max-w-none prose-blockquote:border-l-[5px] prose-blockquote:border-black prose-blockquote:pl-3 prose-blockquote:ml-5 prose-a:text-blue-600 prose-a:no-underline break-words">
-        <PortableText 
-          value={post.content} 
-          components={components} 
-        />
+        <PortableText value={post.content} components={components} />
       </div>
     </div>
   </section>
