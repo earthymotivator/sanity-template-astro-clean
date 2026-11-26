@@ -123,12 +123,9 @@ const visualEditingEnabled =
           </div>
         </div>
 
-        <div class="border-t border-white/10 pt-4 flex flex-col md:flex-row justify-between items-center gap-2 text-[11px] text-white/60">
+        <!-- Yahan se All systems normal hata diya hai aur sirf copyright rakha hai center me -->
+        <div class="border-t border-white/10 pt-4 flex justify-center items-center text-[11px] text-white/60">
           <p>&copy; 2026 top10analysis. All rights reserved.</p>
-          <div class="flex items-center gap-2">
-            <span class="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_6px_rgba(34,197,94,0.6)]"></span> 
-            All systems normal
-          </div>
         </div>
 
       </div>
@@ -141,11 +138,10 @@ const visualEditingEnabled =
 
       if (menuBtn && dropdownMenu) {
         menuBtn.addEventListener('click', (event) => {
-          event.stopPropagation(); // Event bubbling rokne ke liye
+          event.stopPropagation();
           dropdownMenu.classList.toggle('hidden');
         });
 
-        // Close menu when clicking outside
         document.addEventListener('click', (event) => {
           const target = event.target as Node;
           if (!menuBtn.contains(target) && !dropdownMenu.contains(target)) {
