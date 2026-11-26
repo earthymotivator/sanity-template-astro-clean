@@ -32,7 +32,7 @@ export const GET: APIRoute = async () => {
   const postEntries = posts
     .filter((post: any) => post.slug)
     .map((post: any) => ({
-      loc: `${baseUrl}/post/${post.slug}`,
+      loc: `${baseUrl}/blog/${post.slug}`,
       lastmod: post._updatedAt || post.publishDate || post._createdAt,
       priority: '0.8',
     }));
