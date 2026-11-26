@@ -17,7 +17,7 @@ const getImageUrl = (image: any) => {
 const imgUrl = getImageUrl(post.metadata?.image);
 ---
 
-<a href={`/post/${post.slug}`} class="block group border rounded-lg overflow-hidden hover:shadow-lg transition bg-white">
+<a href={`/blog/${post.slug}`} class="block group border rounded-lg overflow-hidden hover:shadow-lg transition bg-white">
   {imgUrl ? (
     <img src={imgUrl} alt={post.title || ""} class="w-full h-56 object-cover" />
   ) : (
