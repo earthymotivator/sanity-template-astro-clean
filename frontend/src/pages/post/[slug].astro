@@ -26,7 +26,6 @@ const ogImageRef = post.metadata?.image?.asset?._ref;
 const ogImage = ogImageRef
   ? `https://cdn.sanity.io/images/${import.meta.env.PUBLIC_SANITY_STUDIO_PROJECT_ID}/${import.meta.env.PUBLIC_SANITY_STUDIO_DATASET}/${ogImageRef.split('-').slice(1).join('-')}`
   : undefined;
-
 const components = {
   type: {
     image: () => null,
@@ -35,7 +34,7 @@ const components = {
     ctas: () => null,
     'custom-html': () => null,
     'schema-markup': () => null,
-    table: TableBlock, // <--- Direct component yahan laga diya
+    table: TableBlock,
     unknown: () => null
   }
 };
