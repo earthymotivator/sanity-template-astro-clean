@@ -3,25 +3,37 @@ import Layout from "../layouts/Layout.astro";
 import { PortableText } from "astro-portabletext";
 import { sanityClient } from "sanity:client";
 
-// Build ke waqt Sanity se saare pages uthata hai
 export async function getStaticPaths() {
-  const pages = await sanityClient.fetch(`*[_type == "page" && defined(slug.current)]{ "slug": slug.current }`);
-  return pages.map((page: { slug: string }) => ({
-    params: { slug: page.slug },
-  }));
+  // Query ab 'slug.current' aur 'metadata.slug.current' dono ko check karegi
+  const pages = await sanityClient.fetch(`*[_type == "page" && (defined(slug.current) || defined(metadata.slug.current)) && coalesce(slug.current, metadata.slug.current) != "/"]{
+    "slug": coalesce(slug.current, metadata.slug.current)
+  }`);
+  
+  if (!pages) return [];
+  
+  return pages.map((page: { slug: string }) => {
+    // Slug ko clean karte hain (space ko hyphen se replace)
+    const cleanSlug = page.slug.toLowerCase().replace(/\s+/g, '-');
+    return {
+      params: { slug: cleanSlug },
+    };
+  });
 }
 
 const { slug } = Astro.params;
 
-// Us specific page ka data fetch karta hai
-const page = await sanityClient.fetch(`*[_type == "page" && slug.current == $slug][0]`);
+// Query mein bhi dono jagah check kar rahe hain
+const page = await sanityClient.fetch(
+  `*[_type == "page" && (slug.current == $slug || metadata.slug.current == $slug)][0]`,
+  { slug }
+);
 
 if (!page) {
   return Astro.rewrite('/404');
 }
 ---
 
-<Layout title={page.title || "Page"} description={page.seo?.metaDescription || ""}>
+<Layout title={page.title || "Page"}>
   <div class="max-w-3xl mx-auto px-4 py-12 pt-24">
     <h1 class="text-4xl font-extrabold mb-8 text-[#111]">{page.title}</h1>
     
@@ -30,7 +42,9 @@ if (!page) {
         <PortableText value={page.content} />
       </div>
     ) : (
-      <p class="text-gray-500">Is page mein abhi koi content nahi hai. Sanity mein jakar content likhein.</p>
+      <div class="text-gray-500 bg-gray-50 p-6 rounded-lg">
+        <p>Is page mein content nahi mila. Check karein ki Sanity mein field ka naam kya hai.</p>
+      </div>
     )}
   </div>
 </Layout>
