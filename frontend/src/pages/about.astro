@@ -1,45 +1,10 @@
----
-import Layout from "../layouts/Layout.astro";
-import { createClient } from "@sanity/client";
-
-const client = createClient({
-  projectId: import.meta.env.PUBLIC_SANITY_STUDIO_PROJECT_ID,
-  dataset: import.meta.env.PUBLIC_SANITY_STUDIO_DATASET,
-  apiVersion: "2024-01-01",
-  useCdn: false,
-});
-
-const query = `*[_type == "page" && slug.current == "about-us"][0]{
-  title,
-  modules
-}`;
-
-const page = await client.fetch(query);
----
-
-<Layout title={page?.title || "About Us"}>
-  <div class="w-full max-w-3xl mx-auto px-2 md:px-6 pt-24 pb-16">
-    <h1 class="text-3xl font-bold mb-6">
-      {page?.title || "About Us"}
-    </h1>
-
-    {page?.modules?.map((module: any) => (
-      <div class="mb-8">
-        {module._type === "hero" && (
-          <div>
-            <h2 class="text-2xl font-bold mb-3">{module.heading}</h2>
-            {module.subheading && (
-              <p class="text-lg text-gray-700">{module.subheading}</p>
-            )}
-          </div>
-        )}
-
-        {module._type === "richText" && (
-          <div class="prose max-w-none">
-            {module.content}
-          </div>
-        )}
-      </div>
-    ))}
+{page?.modules?.map((module: any) => (
+  <div class="mb-8">
+    <p class="font-mono text-sm text-gray-500">
+      Module type: {module._type}
+    </p>
+    <pre class="bg-gray-100 p-4 rounded-lg overflow-auto text-xs">
+      {JSON.stringify(module, null, 2)}
+    </pre>
   </div>
-</Layout>
+))}
