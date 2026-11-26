@@ -4,8 +4,7 @@ import { getPosts } from "../utils/sanity";
 
 const posts = await getPosts();
 
-// Nest jaisa short date: "Sep 16, 2026"
-// Shared formatDate utils nahi chhedha, taki dusre pages na toot jayein
+
 const formatShortDate = (value: string) =>
   new Date(value).toLocaleDateString("en-US", {
     month: "short",
@@ -30,7 +29,7 @@ const getImageUrl = (post: any) => {
 ---
 
 <Layout title="Home">
-  <!-- Mobile par px-2 (Nest jaisa inset), desktop par px-6 -->
+  
   <div class="w-full max-w-3xl mx-auto px-2 md:px-6 pt-24 pb-16">
     
     <div class="flex flex-col gap-14">
@@ -40,10 +39,10 @@ const getImageUrl = (post: any) => {
         const dateText = formatShortDate(post.publishDate || post._createdAt);
         
         return (
-          <a href={`/post/${post.slug}`} class="block group">
+          <a href={`/blog/${post.slug}`} class="block group">
             
             {imgUrl ? (
-              <!-- Desktop par hover, mobile par tap (group-active) par zoom -->
+              
               <div class="w-full aspect-[3/2] md:aspect-[1.8/1] rounded-2xl overflow-hidden mb-5 bg-gray-100">
                 <img 
                   src={imgUrl} 
@@ -65,7 +64,7 @@ const getImageUrl = (post: any) => {
               </span>
             </div>
             
-            <!-- Desktop par hover, mobile par tap (group-active) par underline -->
+            
             <h2 class="text-[22px] md:text-4xl font-semibold mb-3 text-[#1a1a1a] leading-tight tracking-tight group-hover:underline group-active:underline underline-offset-4 decoration-2">
               {post.title}
             </h2>
