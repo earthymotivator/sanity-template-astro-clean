@@ -28,7 +28,7 @@ const ogImage = ogImageRef
   ? `https://cdn.sanity.io/images/${import.meta.env.PUBLIC_SANITY_STUDIO_PROJECT_ID}/${import.meta.env.PUBLIC_SANITY_STUDIO_DATASET}/${ogImageRef.split('-').slice(1).join('-')}`
   : undefined;
 
-const components = {
+const components: any = {
   type: {
     image: PortableImage,
     table: PortableTable,
