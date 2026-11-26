@@ -4,7 +4,6 @@ import { PortableText } from "astro-portabletext";
 import { sanityClient } from "sanity:client";
 
 export async function getStaticPaths() {
-  // Query mein 'index' aur 'home' ko hata diya taaki duplicate homepage na bane
   const pages = await sanityClient.fetch(`*[_type == "page" && (defined(slug.current) || defined(metadata.slug.current)) && coalesce(slug.current, metadata.slug.current) != "/" && coalesce(slug.current, metadata.slug.current) != "index" && coalesce(slug.current, metadata.slug.current) != "home"]{
     "slug": coalesce(slug.current, metadata.slug.current)
   }`);
@@ -24,32 +23,58 @@ const page = await sanityClient.fetch(
 );
 
 if (!page) return Astro.rewrite('/404');
+
+const getImageUrl = (image: any) => {
+  if (!image?.asset?._ref) return null;
+  const ref = image.asset._ref;
+  const [_type, hash, dimensions, format] = ref.split('-');
+  return `https://cdn.sanity.io/images/${import.meta.env.PUBLIC_SANITY_STUDIO_PROJECT_ID}/${import.meta.env.PUBLIC_SANITY_STUDIO_DATASET}/${hash}-${dimensions}.${format}`;
+};
 ---
 
 <Layout title={page.title || "Page"}>
   <div class="max-w-3xl mx-auto px-4 py-12 pt-24">
     <h1 class="text-4xl font-extrabold mb-8 text-[#111]">{page.title}</h1>
     
-    <!-- Agar content field hai toh render karo, warna modules check karo -->
     {page.content ? (
       <div class="prose prose-lg prose-serif max-w-none text-[#333]">
         <PortableText value={page.content} />
       </div>
     ) : page.modules ? (
-       <!-- SanityPress ke modules yahan render honge -->
-       <div class="prose prose-lg prose-serif max-w-none text-[#333]">
-         <!-- Filhal hum sirf debug ke liye data dikha rahe hain -->
-         <div class="bg-red-600 text-white p-4 rounded-lg overflow-auto text-xs">
-            <h2 class="text-lg font-bold mb-2">Page JSON Data (modules found):</h2>
-            <pre>{JSON.stringify(page, null, 2)}</pre>
-         </div>
-       </div>
-    ) : (
-      <!-- Agar dono nahi hain toh debug box dikhao -->
-      <div class="bg-red-600 text-white p-4 rounded-lg overflow-auto text-xs">
-        <h2 class="text-lg font-bold mb-2">Page JSON Data:</h2>
-        <pre>{JSON.stringify(page, null, 2)}</pre>
+      <div class="flex flex-col gap-10">
+        {page.modules.map((module: any) => {
+          
+          // 1. Content wale modules (Hero, Richtext etc.)
+          if (module.content) {
+            return (
+              <div class="prose prose-lg prose-serif max-w-none text-[#333]">
+                <PortableText value={module.content} />
+              </div>
+            );
+          }
+          
+          // 2. Image module
+          if (module._type === 'image' || module.image) {
+            const imgUrl = getImageUrl(module.image || module);
+            if (imgUrl) {
+              return (
+                <div class="my-6">
+                  <img src={imgUrl} alt="Page image" class="w-full h-auto rounded-xl" />
+                </div>
+              );
+            }
+          }
+
+          // 3. Fallback: module nit designed 
+          return (
+            <div class="p-4 bg-gray-100 border border-gray-300 rounded-lg text-center text-gray-500 text-sm">
+              Naya Module detected: <strong>{module._type}</strong> (module not designed yet )
+            </div>
+          );
+        })}
       </div>
+    ) : (
+      <p class="text-gray-500">write content here.</p>
     )}
   </div>
 </Layout>
