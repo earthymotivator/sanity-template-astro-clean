@@ -26,6 +26,7 @@ const ogImage = ogImageRef
   ? `https://cdn.sanity.io/images/${import.meta.env.PUBLIC_SANITY_STUDIO_PROJECT_ID}/${import.meta.env.PUBLIC_SANITY_STUDIO_DATASET}/${ogImageRef.split('-').slice(1).join('-')}`
   : undefined;
 
+// Table ko uski sahi jagah render karne ke liye content ko parts mein tod rahe hain
 const contentParts: any[] = [];
 let currentTextBlock: any[] = [];
 
