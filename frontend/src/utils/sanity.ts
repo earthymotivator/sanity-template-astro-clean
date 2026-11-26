@@ -20,16 +20,16 @@ export async function getPosts(): Promise<Post[]> {
   return loadQuery<Post[]>(
     groq`*[_type == "blog.post"] | order(publishDate desc) {
       ...,
-      "slug": _id
+      "slug": metadata.slug.current
     }`,
   );
 }
 
 export async function getPost(slug: string): Promise<Post> {
   return loadQuery<Post>(
-    groq`*[_type == "blog.post" && _id == $slug][0] {
+    groq`*[_type == "blog.post" && metadata.slug.current == $slug][0] {
       ...,
-      "slug": _id
+      "slug": metadata.slug.current
     }`,
     { slug },
   );
@@ -46,6 +46,7 @@ export interface Post {
   metadata?: {
     title?: string;
     description?: string;
+    slug?: { current: string };
     image?: any;
   };
-}
+                                           }
