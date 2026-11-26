@@ -38,6 +38,27 @@ const components = {
           <img src={imgUrl} alt={value.alt || ""} className="w-full h-auto rounded-lg shadow-sm" />
         </div>
       );
+    },
+    table: ({ value }: any) => {
+      const rows = value?.rows ?? [];
+      const headerRows = value?.headerRows ?? 1;
+      return (
+        <div className="my-8 overflow-x-auto">
+          <table className="w-full border-collapse text-sm">
+            <tbody>
+              {rows.map((row: any, rowIndex: number) => (
+                <tr className={rowIndex < headerRows ? "bg-slate-100 font-semibold" : ""}>
+                  {row?.cells?.map((cell: any, cellIndex: number) => (
+                    <td className="border border-slate-300 px-3 py-2 align-top">
+                      <PortableText value={cell?.value ?? []} />
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
     }
   }
 };
