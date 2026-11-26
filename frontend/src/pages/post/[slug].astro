@@ -35,28 +35,35 @@ const components = {
     'custom-html': () => null,
     'schema-markup': () => null,
     table: ({ value }: any) => {
-      if (!value?.rows) return null;
-      const headerRow = value.rows[0]?.cells || [];
-      const bodyRows = value.rows.slice(1) || [];
+      // SanityPress table structure check
+      const tableData = value?.table || value;
+      if (!tableData?.rows) return null;
 
-      return `
-        <div class="my-6 overflow-x-auto">
-          <table class="min-w-full border-collapse border border-gray-300 text-left">
-            <thead class="bg-gray-50">
-              <tr>
-                ${headerRow.map((cell: string) => `<th class="border border-gray-300 p-3 font-semibold">${cell}</th>`).join('')}
-              </tr>
-            </thead>
-            <tbody>
-              ${bodyRows.map((row: any) => `
-                <tr>
-                  ${(row.cells || []).map((cell: string) => `<td class="border border-gray-300 p-3">${cell}</td>`).join('')}
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </div>
-      `;
+      let html = `<div class="my-6 overflow-x-auto"><table class="min-w-full border-collapse border border-gray-300 text-left"><thead class="bg-gray-50"><tr>`;
+      
+      const firstRow = tableData.rows[0];
+      if (firstRow?.cells) {
+        firstRow.cells.forEach((cell: string) => {
+          html += `<th class="border border-gray-300 p-3 font-semibold">${cell}</th>`;
+        });
+      }
+      html += `</tr></thead><tbody>`;
+
+      tableData.rows.slice(1).forEach((row: any) => {
+        html += `<tr>`;
+        if (row.cells) {
+          row.cells.forEach((cell: string) => {
+            html += `<td class="border border-gray-300 p-3">${cell}</td>`;
+          });
+        }
+        html += `</tr>`;
+      });
+
+      html += `</tbody></table></div>`;
+      
+      return {
+        html: html
+      };
     },
     unknown: () => null
   }
