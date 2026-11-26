@@ -4,46 +4,51 @@ import { PortableText } from "astro-portabletext";
 import { sanityClient } from "sanity:client";
 
 export async function getStaticPaths() {
-  // Query ab 'slug.current' aur 'metadata.slug.current' dono ko check karegi
-  const pages = await sanityClient.fetch(`*[_type == "page" && (defined(slug.current) || defined(metadata.slug.current)) && coalesce(slug.current, metadata.slug.current) != "/"]{
+  // Query mein 'index' aur 'home' ko hata diya taaki duplicate homepage na bane
+  const pages = await sanityClient.fetch(`*[_type == "page" && (defined(slug.current) || defined(metadata.slug.current)) && coalesce(slug.current, metadata.slug.current) != "/" && coalesce(slug.current, metadata.slug.current) != "index" && coalesce(slug.current, metadata.slug.current) != "home"]{
     "slug": coalesce(slug.current, metadata.slug.current)
   }`);
   
   if (!pages) return [];
   
   return pages.map((page: { slug: string }) => {
-    // Slug ko clean karte hain (space ko hyphen se replace)
     const cleanSlug = page.slug.toLowerCase().replace(/\s+/g, '-');
-    return {
-      params: { slug: cleanSlug },
-    };
+    return { params: { slug: cleanSlug } };
   });
 }
 
 const { slug } = Astro.params;
-
-// Query mein bhi dono jagah check kar rahe hain
 const page = await sanityClient.fetch(
-  `*[_type == "page" && (slug.current == $slug || metadata.slug.current == $slug)][0]`,
+  `*[_type == "page" && (lower(slug.current) == $slug || lower(metadata.slug.current) == $slug)][0]`,
   { slug }
 );
 
-if (!page) {
-  return Astro.rewrite('/404');
-}
+if (!page) return Astro.rewrite('/404');
 ---
 
 <Layout title={page.title || "Page"}>
   <div class="max-w-3xl mx-auto px-4 py-12 pt-24">
     <h1 class="text-4xl font-extrabold mb-8 text-[#111]">{page.title}</h1>
     
+    <!-- Agar content field hai toh render karo, warna modules check karo -->
     {page.content ? (
       <div class="prose prose-lg prose-serif max-w-none text-[#333]">
         <PortableText value={page.content} />
       </div>
+    ) : page.modules ? (
+       <!-- SanityPress ke modules yahan render honge -->
+       <div class="prose prose-lg prose-serif max-w-none text-[#333]">
+         <!-- Filhal hum sirf debug ke liye data dikha rahe hain -->
+         <div class="bg-red-600 text-white p-4 rounded-lg overflow-auto text-xs">
+            <h2 class="text-lg font-bold mb-2">Page JSON Data (modules found):</h2>
+            <pre>{JSON.stringify(page, null, 2)}</pre>
+         </div>
+       </div>
     ) : (
-      <div class="text-gray-500 bg-gray-50 p-6 rounded-lg">
-        <p>Is page mein content nahi mila. Check karein ki Sanity mein field ka naam kya hai.</p>
+      <!-- Agar dono nahi hain toh debug box dikhao -->
+      <div class="bg-red-600 text-white p-4 rounded-lg overflow-auto text-xs">
+        <h2 class="text-lg font-bold mb-2">Page JSON Data:</h2>
+        <pre>{JSON.stringify(page, null, 2)}</pre>
       </div>
     )}
   </div>
