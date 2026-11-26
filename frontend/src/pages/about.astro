@@ -1,12 +1,38 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { client } from "../utils/sanity";
+
+const query = `*[_type == "page" && slug.current == "about-us"][0]{
+  title,
+  modules
+}`;
+
+const page = await client.fetch(query);
 ---
 
-<Layout title="About Us">
+<Layout title={page?.title || "About Us"}>
   <div class="w-full max-w-3xl mx-auto px-2 md:px-6 pt-24 pb-16">
-    <h1 class="text-3xl font-bold mb-6">About Us</h1>
-    <p class="text-lg text-gray-700 leading-relaxed">
-      About Us content
-    </p>
+    <h1 class="text-3xl font-bold mb-6">
+      {page?.title || "About Us"}
+    </h1>
+
+    {page?.modules?.map((module: any) => (
+      <div class="mb-8">
+        {module._type === "hero" && (
+          <div>
+            <h2 class="text-2xl font-bold mb-3">{module.heading}</h2>
+            {module.subheading && (
+              <p class="text-lg text-gray-700">{module.subheading}</p>
+            )}
+          </div>
+        )}
+
+        {module._type === "richText" && (
+          <div class="prose max-w-none">
+            {module.content}
+          </div>
+        )}
+      </div>
+    ))}
   </div>
 </Layout>
