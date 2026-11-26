@@ -50,7 +50,7 @@ const components = {
       </p>
       
       <div class="prose prose-lg prose-serif max-w-none prose-blockquote:border-l-[5px] prose-blockquote:border-black prose-blockquote:pl-3 prose-blockquote:ml-5 prose-a:text-blue-600 prose-a:no-underline break-words">
-        <PortableText value={post.content} components={components} />
+        <pre class="bg-black text-green-400 p-4 overflow-auto text-xs">{JSON.stringify(post.content, null, 2)}</pre>
       </div>
     </div>
   </section>
