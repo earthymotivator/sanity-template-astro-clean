@@ -1,0 +1,113 @@
+---
+import { PortableText } from "astro-portabletext";
+import Layout from "../../layouts/Layout.astro";
+import { formatDate } from "../../utils";
+import { getPost } from "../../utils/sanity";
+import { sanityClient } from "sanity:client";
+
+export async function getStaticPaths() {
+  const posts = await sanityClient.fetch(`*[_type == "blog.post" && defined(metadata.slug.current)]{ "slug": metadata.slug.current }`);
+  return posts.map((post: { slug: string }) => ({
+    params: { slug: post.slug },
+  }));
+}
+
+const { slug } = Astro.params;
+const post = await getPost(slug!);
+
+if (!post) {
+  return Astro.rewrite('/404');
+}
+
+const seoTitle = post.metadata?.title || post.title;
+const seoDescription = post.metadata?.description || "";
+const ogImageRef = post.metadata?.image?.asset?._ref;
+const ogImage = ogImageRef
+  ? `https://cdn.sanity.io/images/${import.meta.env.PUBLIC_SANITY_STUDIO_PROJECT_ID}/${import.meta.env.PUBLIC_SANITY_STUDIO_DATASET}/${ogImageRef.split('-').slice(1).join('-')}`
+  : undefined;
+
+const contentParts: any[] = [];
+let currentTextBlock: any[] = [];
+
+post.content.forEach((block: any) => {
+  if (block._type === 'table') {
+    if (currentTextBlock.length > 0) {
+      contentParts.push({ type: 'text', data: currentTextBlock });
+      currentTextBlock = [];
+    }
+    contentParts.push({ type: 'table', data: block });
+  } else {
+    currentTextBlock.push(block);
+  }
+});
+
+if (currentTextBlock.length > 0) {
+  contentParts.push({ type: 'text', data: currentTextBlock });
+}
+
+const components = {
+  type: {
+    image: ({ value }: any) => {
+      if (!value?.asset?._ref) return null;
+      const ref = value.asset._ref;
+      const [_type, hash, dimensions, format] = ref.split('-');
+      const imgUrl = `https://cdn.sanity.io/images/${import.meta.env.PUBLIC_SANITY_STUDIO_PROJECT_ID}/${import.meta.env.PUBLIC_SANITY_STUDIO_DATASET}/${hash}-${dimensions}.${format}`;
+      
+      return {
+        html: `<div class="my-8"><img src="${imgUrl}" alt="${value.alt || ''}" class="w-full h-auto rounded-lg shadow-sm" /></div>`
+      };
+    },
+    code: () => null,
+    'accordion-list': () => null,
+    ctas: () => null,
+    'custom-html': () => null,
+    'schema-markup': () => null,
+    unknown: () => null
+  }
+};
+---
+
+<Layout title={seoTitle ?? "Post"} description={seoDescription} image={ogImage}>
+  <section class="w-full my-1 mb-5">
+    <div class="px-3 max-w-4xl mx-auto mt-10">
+      <h1 class="font-sans font-extrabold text-4xl leading-9 my-5 md:text-6xl md:leading-tight md:mt-13 md:mb-0 md:-tracking-[0.025em] break-words">{post.title}</h1>
+      
+      <p class="font-sans font-semibold text-sm leading-5 mt-5 md:text-lg md:leading-6 md:mt-2 mb-10 text-gray-500">
+        {formatDate(post.publishDate || post._createdAt)}
+      </p>
+      
+      <div class="prose prose-lg prose-serif max-w-none prose-blockquote:border-l-[5px] prose-blockquote:border-black prose-blockquote:pl-3 prose-blockquote:ml-5 prose-a:text-blue-600 prose-a:no-underline break-words">
+        
+        {contentParts.map((part) => {
+          if (part.type === 'text') {
+            return <PortableText value={part.data} components={components} />;
+          } else if (part.type === 'table') {
+            const rows = part.data.rows || [];
+            return (
+              <div class="my-6 overflow-x-auto">
+                <table class="min-w-full border-collapse border border-gray-300 text-left">
+                  <tbody>
+                    {rows.map((row: any, rowIndex: number) => (
+                      <tr class={rowIndex === 0 ? "bg-gray-50" : ""}>
+                        {row.cells?.map((cell: any) => {
+                          const cellClass = rowIndex === 0 ? 'border border-gray-300 p-3 font-semibold' : 'border border-gray-300 p-3';
+                          const text = cell.value?.map((b: any) => b.children?.map((c: any) => c.text).join('') || '').join('') || '';
+                          
+                          if (rowIndex === 0) {
+                            return <th class={cellClass}>{text}</th>;
+                          }
+                          return <td class={cellClass}>{text}</td>;
+                        })}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            );
+          }
+        })}
+        
+      </div>
+    </div>
+  </section>
+</Layout>
