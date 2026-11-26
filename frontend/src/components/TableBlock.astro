@@ -1,0 +1,23 @@
+---
+const { value } = Astro.props;
+const rows = value?.rows || [];
+---
+
+<div class="my-6 overflow-x-auto">
+  <table class="min-w-full border-collapse border border-gray-300 text-left">
+    <tbody>
+      {rows.map((row, index) => (
+        <tr class={index === 0 ? "bg-gray-50" : ""}>
+          {row.cells?.map((cell) => {
+            const text = typeof cell === 'string' ? cell : (cell?.text || '');
+            const Tag = index === 0 ? 'th' : 'td';
+            const cellClass = index === 0 ? 'border border-gray-300 p-3 font-semibold' : 'border border-gray-300 p-3';
+            return (
+              <Tag class={cellClass}>{text}</Tag>
+            );
+          })}
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
