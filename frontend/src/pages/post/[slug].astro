@@ -6,7 +6,7 @@ import { getPost } from "../../utils/sanity";
 import { sanityClient } from "sanity:client";
 
 export async function getStaticPaths() {
-  const posts = await sanityClient.fetch(`*[_type == "blog.post"]{ "slug": _id }`);
+  const posts = await sanityClient.fetch(`*[_type == "blog.post" && defined(metadata.slug.current)]{ "slug": metadata.slug.current }`);
   return posts.map((post: { slug: string }) => ({
     params: { slug: post.slug },
   }));
