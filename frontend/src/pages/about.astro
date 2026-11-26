@@ -1,6 +1,13 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import { client } from "../utils/sanity";
+import { createClient } from "@sanity/client";
+
+const client = createClient({
+  projectId: import.meta.env.PUBLIC_SANITY_STUDIO_PROJECT_ID,
+  dataset: import.meta.env.PUBLIC_SANITY_STUDIO_DATASET,
+  apiVersion: "2024-01-01",
+  useCdn: false,
+});
 
 const query = `*[_type == "page" && slug.current == "about-us"][0]{
   title,
